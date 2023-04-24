@@ -28,11 +28,11 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     log: true,
     autoMine: true,
   });
-  
+
 
   const verifier_contract = await deploy("Eippy", {
     from: deployer,
-    //Constructor argument is the address of the SubmissionAVLTree contract
+    args: ["Viaprize", "1"],
     log: true,
     autoMine: true,
   });

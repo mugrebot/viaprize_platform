@@ -4,6 +4,90 @@ const contracts = {
       name: "localhost",
       chainId: "31337",
       contracts: {
+        Eippy: {
+          address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+          abi: [
+            {
+              inputs: [
+                {
+                  internalType: "string",
+                  name: "name",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "version",
+                  type: "string",
+                },
+              ],
+              stateMutability: "nonpayable",
+              type: "constructor",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "uint16",
+                  name: "score",
+                  type: "uint16",
+                },
+                {
+                  internalType: "address",
+                  name: "account",
+                  type: "address",
+                },
+                {
+                  internalType: "address",
+                  name: "_contract",
+                  type: "address",
+                },
+              ],
+              name: "createMessage",
+              outputs: [
+                {
+                  internalType: "bytes32",
+                  name: "",
+                  type: "bytes32",
+                },
+              ],
+              stateMutability: "view",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "uint16",
+                  name: "score",
+                  type: "uint16",
+                },
+                {
+                  internalType: "address",
+                  name: "account",
+                  type: "address",
+                },
+                {
+                  internalType: "address",
+                  name: "_contract",
+                  type: "address",
+                },
+                {
+                  internalType: "bytes",
+                  name: "signature",
+                  type: "bytes",
+                },
+              ],
+              name: "verifySignature",
+              outputs: [
+                {
+                  internalType: "bool",
+                  name: "",
+                  type: "bool",
+                },
+              ],
+              stateMutability: "view",
+              type: "function",
+            },
+          ],
+        },
         SubmissionAVLTree: {
           address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
           abi: [
@@ -435,13 +519,18 @@ const contracts = {
           ],
         },
         YourContract: {
-          address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+          address: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
           abi: [
             {
               inputs: [
                 {
                   internalType: "address",
                   name: "submissionContract",
+                  type: "address",
+                },
+                {
+                  internalType: "address",
+                  name: "verifierContract",
                   type: "address",
                 },
               ],
@@ -527,7 +616,18 @@ const contracts = {
               type: "function",
             },
             {
-              inputs: [],
+              inputs: [
+                {
+                  internalType: "uint16",
+                  name: "score",
+                  type: "uint16",
+                },
+                {
+                  internalType: "bytes",
+                  name: "signature",
+                  type: "bytes",
+                },
+              ],
               name: "addFunds",
               outputs: [],
               stateMutability: "payable",
@@ -653,30 +753,6 @@ const contracts = {
               name: "claimRefund",
               outputs: [],
               stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "uint16",
-                  name: "score",
-                  type: "uint16",
-                },
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "createMessage",
-              outputs: [
-                {
-                  internalType: "bytes32",
-                  name: "",
-                  type: "bytes32",
-                },
-              ],
-              stateMutability: "view",
               type: "function",
             },
             {
@@ -810,6 +886,25 @@ const contracts = {
               type: "function",
             },
             {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "_address",
+                  type: "address",
+                },
+              ],
+              name: "getGitcoinScore",
+              outputs: [
+                {
+                  internalType: "uint16",
+                  name: "",
+                  type: "uint16",
+                },
+              ],
+              stateMutability: "view",
+              type: "function",
+            },
+            {
               inputs: [],
               name: "get_submission_time",
               outputs: [
@@ -830,6 +925,25 @@ const contracts = {
                   internalType: "uint256",
                   name: "",
                   type: "uint256",
+                },
+              ],
+              stateMutability: "view",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "",
+                  type: "address",
+                },
+              ],
+              name: "gitcoin_scores",
+              outputs: [
+                {
+                  internalType: "uint16",
+                  name: "",
+                  type: "uint16",
                 },
               ],
               stateMutability: "view",
@@ -940,30 +1054,6 @@ const contracts = {
             {
               inputs: [
                 {
-                  internalType: "uint16",
-                  name: "score",
-                  type: "uint16",
-                },
-                {
-                  internalType: "bytes",
-                  name: "signature",
-                  type: "bytes",
-                },
-              ],
-              name: "verifySignature",
-              outputs: [
-                {
-                  internalType: "bool",
-                  name: "",
-                  type: "bool",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
                   internalType: "bytes32",
                   name: "_submissionHash",
                   type: "bytes32",
@@ -979,10 +1069,6 @@ const contracts = {
               stateMutability: "nonpayable",
               type: "function",
             },
-            {
-              stateMutability: "payable",
-              type: "receive",
-            },
           ],
         },
       },
@@ -994,26 +1080,23 @@ const contracts = {
       chainId: "11155111",
       contracts: {
         Eippy: {
-          address: "0x8607d102442321eFeE097704A956612bB7A9Dc58",
+          address: "0x682886bB67ff19db20B70B1F859E40aae3ce36A7",
           abi: [
             {
-              anonymous: false,
               inputs: [
                 {
-                  indexed: true,
-                  internalType: "address",
-                  name: "previousOwner",
-                  type: "address",
+                  internalType: "string",
+                  name: "name",
+                  type: "string",
                 },
                 {
-                  indexed: true,
-                  internalType: "address",
-                  name: "newOwner",
-                  type: "address",
+                  internalType: "string",
+                  name: "version",
+                  type: "string",
                 },
               ],
-              name: "OwnershipTransferred",
-              type: "event",
+              stateMutability: "nonpayable",
+              type: "constructor",
             },
             {
               inputs: [
@@ -1042,39 +1125,6 @@ const contracts = {
                 },
               ],
               stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [],
-              name: "owner",
-              outputs: [
-                {
-                  internalType: "address",
-                  name: "",
-                  type: "address",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [],
-              name: "renounceOwnership",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "address",
-                  name: "newOwner",
-                  type: "address",
-                },
-              ],
-              name: "transferOwnership",
-              outputs: [],
-              stateMutability: "nonpayable",
               type: "function",
             },
             {
@@ -1544,7 +1594,7 @@ const contracts = {
           ],
         },
         YourContract: {
-          address: "0x752976c044F434585c7fA998ec8F63C20097962C",
+          address: "0x41c8DEc37c178f34F377ca784B68D1A8fdad43B7",
           abi: [
             {
               inputs: [

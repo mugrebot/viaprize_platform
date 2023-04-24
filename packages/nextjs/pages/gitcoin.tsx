@@ -1,8 +1,29 @@
 import { useEffect, useState } from "react";
+import type { AppProps } from "next/app";
+import { Web3Provider } from "@ethersproject/providers";
+import { RainbowKitProvider, darkTheme, lightTheme } from "@rainbow-me/rainbowkit";
 import "@rainbow-me/rainbowkit/styles.css";
-import { ethers } from "ethers";
-import { useAccount, useConnect, useSignMessage, useSigner } from "wagmi";
+import { getDefaultProvider } from "ethers";
+import NextNProgress from "nextjs-progressbar";
+import { Toaster } from "react-hot-toast";
+import { useDarkMode } from "usehooks-ts";
+import { useAccount, useConnect, useDisconnect, useProvider, useSignTypedData, useSigner } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
+import { Footer } from "~~/components/Footer";
+import { Header } from "~~/components/Header";
+import { BlockieAvatar } from "~~/components/scaffold-eth";
+import { useEthPrice } from "~~/hooks/scaffold-eth";
+import { useAppStore } from "~~/services/store/store";
+import { wagmiClient } from "~~/services/web3/wagmiClient";
+import { appChains } from "~~/services/web3/wagmiConnectors";
+
+import { signTypedData_v4 } from "eth-sig-util";
+
+import { ethers } from "ethers";
+
+import { EIP712 } from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
+import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+
 
 // these lines read the API key and scorer ID from your .env.local file
 const APIKEY = "716FoKqX.jZD7WuTQhn4pbiEv1cjMsbZEdQqVJemv";
@@ -27,6 +48,10 @@ export default function Passport() {
     connector: new InjectedConnector(),
   });
 
+  const provider = useProvider();
+
+  console.log(provider.getSigner());
+
   const { address, isConnected, connector: activeConnector } = useAccount();
 
   const { data: signer } = useSigner();
@@ -34,17 +59,6 @@ export default function Passport() {
   // here we deal with any local state we need to manage
   const [score, setScore] = useState<string>("");
   const [noScoreMessage, setNoScoreMessage] = useState<string>("");
-  const [message, setMessage] = useState<Uint8Array>(new Uint8Array());
-
-  const { data, isError, isLoading, isSuccess, signMessage } = useSignMessage({
-    message,
-    onError(error) {
-      console.log("Error", error);
-    },
-    onMutate(args) {
-      console.log("Mutate", args);
-    },
-  });
 
   /* todo check user's connection when the app loads */
   async function _connect() {
@@ -68,12 +82,11 @@ export default function Passport() {
         console.log("not connected...");
       }
     }
-  }, [address, checkPassport]);
+  }, []);
 
   /* todo connect user's wallet */
 
   /* todo check user's passport */
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   async function checkPassport(currentAddress = address) {
     setScore("");
     setNoScoreMessage("");
@@ -115,7 +128,7 @@ export default function Passport() {
     }
   }
 
-  async function SetMessage() {
+  async function GetSignedScore() {
     if (!address) {
       console.log("no address");
       return;
@@ -126,20 +139,37 @@ export default function Passport() {
       return;
     }
 
-    const _message = ethers.utils.keccak256(
-      ethers.utils.defaultAbiCoder.encode(
-        ["uint16", "address", "address"],
-        [score, address, "0x752976c044F434585c7fA998ec8F63C20097962C"],
-      ),
-    );
+    console.log(score, address);
 
-    const arrayified = ethers.utils.arrayify(_message);
+    //construct a message with the score from the current query to be signed using wagmi methods
+    const domain = {
+      name: "Viaprize",
+      version: "1",
+      chainId: 11155111,
+      verifyingContract: "0x682886bB67ff19db20B70B1F859E40aae3ce36A7",
+    };
 
-    const signature = await signer?.signMessage(arrayified);
+    const types = {
+      Message: [
+        { name: "score", type: "uint16" },
+        { name: "account", type: "address" },
+        { name: "_contract", type: "address" },
+      ],
+    };
 
+    const message = {
+      score: score,
+      account: address,
+      _contract: "0x682886bB67ff19db20B70B1F859E40aae3ce36A7",
+    };
+
+    const messageHash = ethers.utils._TypedDataEncoder.hash(domain, types, message);
+    console.log(messageHash);
+
+    const signature = await signer?._signTypedData(domain, types, message);
+
+    console.log(domain, types, message);
     console.log(signature);
-
-    setMessage(arrayified);
   }
 
   async function submitPassport() {
@@ -221,18 +251,10 @@ export default function Passport() {
         </a>
       </p>
       <p style={styles.configurePassport}>
-        Once you have added more stamps to your passport, submit your passport again to recalculate your score.
+        Once you've added more stamps to your passport, submit your passport again to recalculate your score.
       </p>
 
-      <button disabled={isLoading} onClick={() => SetMessage()}>
-        Set Message
-      </button>
-
-      <button disabled={isLoading} onClick={() => signMessage()}>
-        Sign typed data
-      </button>
-      {isSuccess && <div>Signature: {data}</div>}
-      {isError && <div>Error signing message</div>}
+      <button onClick={() => GetSignedScore()}>Get signed score</button>
 
       <div style={styles.buttonContainer}>
         {!isConnected && (
