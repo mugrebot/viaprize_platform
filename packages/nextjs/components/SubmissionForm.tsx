@@ -20,7 +20,7 @@ const SubmissionForm: React.FC<Props> = ({ address }) => {
     address: contractInfo?.address,
     abi: yourContractABI,
     functionName: 'addSubmission',
-    args: [contractInfo?.address, submissionText, threshold]
+    args: [address, submissionText, threshold]
   });
 
   const handleChange = (newValue) => {

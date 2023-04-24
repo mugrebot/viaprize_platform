@@ -3,17 +3,18 @@ import Link from "next/link";
 import type { NextPage } from "next";
 import { BugAntIcon, SparklesIcon } from "@heroicons/react/24/outline";
 import { useContract } from "wagmi";
+import React, { useState } from "react";
 
-// Import your new components
 import SubmissionTime from "../components/SubmissionTime";
-import { useYourContract } from "~~/generated/contractHooks";
 import VotingTime from "../components/VotingTime";
 import Submissions from "../components/Submissions";
 import SubmissionForm from "../components/SubmissionForm";
-//import AddFunds from "../components/AddFunds";
-//import VoteOnSubmission from "../components/VoteOnSubmission";
+import AddFunds from "../components/AddFunds";
+import Vote from "../components/AddVote";
+
 
 const Home: NextPage = () => {
+  const [selectedOption, setSelectedOption] = useState("submission");
 
   return (
     <>
@@ -29,11 +30,63 @@ const Home: NextPage = () => {
           </h1>
         </div>
 
-        {/* Include your new components */}
-        <SubmissionTime />
-        <VotingTime />
-        <Submissions />
-        <SubmissionForm address={"0xcd258fCe467DDAbA643f813141c3560FF6c12518"} />
+        <div className="grid grid-cols-2 gap-4 mb-4 w-full">
+          <div className="bg-black-100 p-4 rounded-md shadow-md">
+            <h3 className="text-lg font-bold mb-2">Times</h3>
+            <SubmissionTime />
+            <VotingTime />
+          </div>
+
+          <div className="bg-black-100 p-4 rounded-md shadow-md">
+            <h3 className="text-lg font-bold mb-2">
+              {selectedOption === "submission"
+                ? "Add Submission"
+                : selectedOption === "funds"
+                ? "Add Funds"
+                : "Vote"}
+            </h3>
+            <div className="flex justify-around mb-2">
+              <button
+                className={`text-md font-bold ${
+                  selectedOption === "submission"
+                    ? "text-white"
+                    : "text-gray-500"
+                }`}
+                onClick={() => setSelectedOption("submission")}
+              >
+                Add Submission
+              </button>
+              <button
+                className={`text-md font-bold ${
+                  selectedOption === "funds" ? "text-white" : "text-gray-500"
+                }`}
+                onClick={() => setSelectedOption("funds")}
+              >
+                Add Funds
+              </button>
+              <button
+                className={`text-md font-bold ${
+                  selectedOption === "vote" ? "text-white" : "text-gray-500"
+                }`}
+                onClick={() => setSelectedOption("vote")}
+              >
+                Vote
+              </button>
+            </div>
+            {selectedOption === "submission" ? (
+              <SubmissionForm address={"0xcd258fCe467DDAbA643f813141c3560FF6c12518"} />
+            ) : selectedOption === "funds" ? (
+              <AddFunds address={"0xcd258fCe467DDAbA643f813141c3560FF6c12518"} />
+            ) : (
+              <Vote contractName={"YourContract"} />
+            )}
+          </div>
+        </div>
+
+        <div className="bg-black-100 p-4 rounded-md shadow-md w-full">
+          <h3 className="text-lg font-bold mb-2">Submissions</h3>
+          <Submissions />
+        </div>
       </div>
     </>
   );
