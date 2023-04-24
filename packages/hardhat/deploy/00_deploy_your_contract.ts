@@ -21,9 +21,18 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
 
+  
   const submission_contract = await deploy("SubmissionAVLTree", {
     from: deployer,
     // Contract constructor arguments
+    log: true,
+    autoMine: true,
+  });
+  
+
+  const verifier_contract = await deploy("Eippy", {
+    from: deployer,
+    //Constructor argument is the address of the SubmissionAVLTree contract
     log: true,
     autoMine: true,
   });
@@ -31,11 +40,11 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   await deploy("YourContract", {
     from: deployer,
     //Constructor argument is the address of the SubmissionAVLTree contract
-    args: [submission_contract.address],
+    args: [submission_contract.address, verifier_contract.address ],
     log: true,
     autoMine: true,
   });
-
+  
 
 
   // Get the deployed contract
@@ -48,3 +57,4 @@ export default deployYourContract;
 // e.g. yarn deploy --tags YourContract
 deployYourContract.tags = ["SubmissionAVLTree"];
 deployYourContract.tags = ["YourContract"];
+deployYourContract.tags = ["Eippy"];

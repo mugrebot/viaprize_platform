@@ -2,6 +2,8 @@
 pragma solidity ^0.8.0;
 
 import "./SubmissionAVLTree.sol";
+import "./Eippy.sol";
+import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
 
 /* 
 ·--------------------------------------------|---------------------------|-------------|-----------------------------·
@@ -61,11 +63,20 @@ contract YourContract {
     /// @notice add a new refund mapping for address to bool
     mapping(address => bool) public addressRefunded;
 
+    /// @notice this will map the address to uint16 of their gitcoin score that gets retrieved from the gitcoin api and verified with Eippy.sol
+    mapping (address => uint16) public gitcoin_scores;
+
+    /// @notice using ECDSA for bytes32 - signature verification
+    using ECDSA for bytes32;
+
     /// @notice this will be the address of the platform
     address public constant PLATFORM_ADDRESS = 0xcd258fCe467DDAbA643f813141c3560FF6c12518; 
 
-    /// @notice / @notice submissionTree contract
+    /// @notice submissionTree contract
     SubmissionAVLTree private submissionTree;
+
+    /// @notice Eippy contract
+    Eippy private eippy;
 
     // Errors
 
@@ -109,13 +120,16 @@ contract YourContract {
     error VotingPeriodActive();
 
 
-    constructor(address submissionContract) {
+    constructor(address submissionContract, address verifierContract) {
         /// @notice add as many admins as you need to -- replace msg.sender with the address of the admin(s) for now this means the deployer will be the sole admin
         admins[msg.sender] = true;
         admins[0xcd258fCe467DDAbA643f813141c3560FF6c12518] = true;
         /// @notice  Initialize the submissionTree
         submissionTree = SubmissionAVLTree(submissionContract); 
+        /// @notice Initialize the Eippy contract
+        eippy = Eippy(verifierContract);
     }
+
 
     /// @notice create a function to start the submission period
     function start_submission_period(uint256 _submission_time) public {
@@ -151,6 +165,11 @@ contract YourContract {
         voting_time = block.timestamp + _voting_time * 1 days;
 
     }
+
+    function getGitcoinScore(address _address) public view returns (uint16) {
+        return gitcoin_scores[_address];
+    }
+
     /// @notice end the voting period
     function end_voting_period() public {
         if(admins[msg.sender] == false) revert NotAdmin();
@@ -247,18 +266,21 @@ contract YourContract {
     }
 
     /// @notice function to allow funders to add funds to the contract
-    function addFunds() public payable {
+    function addFunds(uint16 score, bytes memory signature) public payable {
         if (msg.value == 0) revert NotEnoughFunds();
             funders[msg.sender] += msg.value;
             total_funds += msg.value;
             total_rewards += (msg.value * 95) / 100; /// @notice  95% of the funds will be used
 
+            if (eippy.verifySignature(score, msg.sender, address(this), signature) == true) {
+                gitcoin_scores[msg.sender] = score;
+            } else {
+                gitcoin_scores[msg.sender] = 0;
+            }
+
 
     }
 
-    receive () external payable {
-        addFunds();
-    }
 
     /// @notice create function to allow admins to withdraw funds to the submission winners and the platform but do not iterate through an unknown length array
     function use_unused_votes(bytes32 _submissionHash) public {
