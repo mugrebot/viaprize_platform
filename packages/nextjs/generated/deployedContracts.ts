@@ -1079,92 +1079,8 @@ const contracts = {
       name: "sepolia",
       chainId: "11155111",
       contracts: {
-        Eippy: {
-          address: "0x682886bB67ff19db20B70B1F859E40aae3ce36A7",
-          abi: [
-            {
-              inputs: [
-                {
-                  internalType: "string",
-                  name: "name",
-                  type: "string",
-                },
-                {
-                  internalType: "string",
-                  name: "version",
-                  type: "string",
-                },
-              ],
-              stateMutability: "nonpayable",
-              type: "constructor",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "uint16",
-                  name: "score",
-                  type: "uint16",
-                },
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-                {
-                  internalType: "address",
-                  name: "_contract",
-                  type: "address",
-                },
-              ],
-              name: "createMessage",
-              outputs: [
-                {
-                  internalType: "bytes32",
-                  name: "",
-                  type: "bytes32",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "uint16",
-                  name: "score",
-                  type: "uint16",
-                },
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-                {
-                  internalType: "address",
-                  name: "_contract",
-                  type: "address",
-                },
-                {
-                  internalType: "bytes",
-                  name: "signature",
-                  type: "bytes",
-                },
-              ],
-              name: "verifySignature",
-              outputs: [
-                {
-                  internalType: "bool",
-                  name: "",
-                  type: "bool",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
-            },
-          ],
-        },
         SubmissionAVLTree: {
-          address: "0xb8AF648B128C5A2276c2aE64AAd2AF1C8dC94532",
+          address: "0x2B9770a1Ed8240049c0A2133D98c17BD4D2327AB",
           abi: [
             {
               inputs: [
@@ -1593,8 +1509,92 @@ const contracts = {
             },
           ],
         },
+        Eippy: {
+          address: "0x2D15480d5002990E4f8D7a1cf879c8DbDdF5e825",
+          abi: [
+            {
+              inputs: [
+                {
+                  internalType: "string",
+                  name: "name",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "version",
+                  type: "string",
+                },
+              ],
+              stateMutability: "nonpayable",
+              type: "constructor",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "uint16",
+                  name: "score",
+                  type: "uint16",
+                },
+                {
+                  internalType: "address",
+                  name: "account",
+                  type: "address",
+                },
+                {
+                  internalType: "address",
+                  name: "_contract",
+                  type: "address",
+                },
+              ],
+              name: "createMessage",
+              outputs: [
+                {
+                  internalType: "bytes32",
+                  name: "",
+                  type: "bytes32",
+                },
+              ],
+              stateMutability: "view",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "uint16",
+                  name: "score",
+                  type: "uint16",
+                },
+                {
+                  internalType: "address",
+                  name: "account",
+                  type: "address",
+                },
+                {
+                  internalType: "address",
+                  name: "_contract",
+                  type: "address",
+                },
+                {
+                  internalType: "bytes",
+                  name: "signature",
+                  type: "bytes",
+                },
+              ],
+              name: "verifySignature",
+              outputs: [
+                {
+                  internalType: "bool",
+                  name: "",
+                  type: "bool",
+                },
+              ],
+              stateMutability: "view",
+              type: "function",
+            },
+          ],
+        },
         YourContract: {
-          address: "0x41c8DEc37c178f34F377ca784B68D1A8fdad43B7",
+          address: "0xa9eE41058E0CCD5837f0613e3662A35c2B875D3E",
           abi: [
             {
               inputs: [

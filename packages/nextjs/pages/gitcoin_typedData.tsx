@@ -1,29 +1,8 @@
 import { useEffect, useState } from "react";
-import type { AppProps } from "next/app";
-import { Web3Provider } from "@ethersproject/providers";
-import { RainbowKitProvider, darkTheme, lightTheme } from "@rainbow-me/rainbowkit";
 import "@rainbow-me/rainbowkit/styles.css";
-import { getDefaultProvider } from "ethers";
-import NextNProgress from "nextjs-progressbar";
-import { Toaster } from "react-hot-toast";
-import { useDarkMode } from "usehooks-ts";
-import { useAccount, useConnect, useDisconnect, useProvider, useSignTypedData, useSigner } from "wagmi";
-import { InjectedConnector } from "wagmi/connectors/injected";
-import { Footer } from "~~/components/Footer";
-import { Header } from "~~/components/Header";
-import { BlockieAvatar } from "~~/components/scaffold-eth";
-import { useEthPrice } from "~~/hooks/scaffold-eth";
-import { useAppStore } from "~~/services/store/store";
-import { wagmiClient } from "~~/services/web3/wagmiClient";
-import { appChains } from "~~/services/web3/wagmiConnectors";
-
-import { signTypedData_v4 } from "eth-sig-util";
-
 import { ethers } from "ethers";
-
-import { EIP712 } from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
-import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-
+import { useAccount, useConnect, useProvider, useSigner } from "wagmi";
+import { InjectedConnector } from "wagmi/connectors/injected";
 
 // these lines read the API key and scorer ID from your .env.local file
 const APIKEY = "716FoKqX.jZD7WuTQhn4pbiEv1cjMsbZEdQqVJemv";
@@ -82,7 +61,7 @@ export default function Passport() {
         console.log("not connected...");
       }
     }
-  }, []);
+  });
 
   /* todo connect user's wallet */
 
@@ -251,7 +230,7 @@ export default function Passport() {
         </a>
       </p>
       <p style={styles.configurePassport}>
-        Once you've added more stamps to your passport, submit your passport again to recalculate your score.
+        Once you have added more stamps to your passport, submit your passport again to recalculate your score.
       </p>
 
       <button onClick={() => GetSignedScore()}>Get signed score</button>

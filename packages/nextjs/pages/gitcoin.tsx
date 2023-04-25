@@ -1,31 +1,10 @@
 import { useEffect, useState } from "react";
-import type { AppProps } from "next/app";
-import { Web3Provider } from "@ethersproject/providers";
-import { RainbowKitProvider, darkTheme, lightTheme } from "@rainbow-me/rainbowkit";
-import "@rainbow-me/rainbowkit/styles.css";
-import { getDefaultProvider } from "ethers";
-import NextNProgress from "nextjs-progressbar";
-import { Toaster } from "react-hot-toast";
-import { useDarkMode } from "usehooks-ts";
-import { useAccount, useConnect, useDisconnect, useProvider, useSignTypedData, useSigner } from "wagmi";
-import { InjectedConnector } from "wagmi/connectors/injected";
-import { Footer } from "~~/components/Footer";
-import { Header } from "~~/components/Header";
-import { BlockieAvatar } from "~~/components/scaffold-eth";
-import { useEthPrice } from "~~/hooks/scaffold-eth";
-import { useAppStore } from "~~/services/store/store";
-import { wagmiClient } from "~~/services/web3/wagmiClient";
-import { appChains } from "~~/services/web3/wagmiConnectors";
-import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
 import { CopyIcon } from "../components/example-ui/assets/CopyIcon";
-
-import { signTypedData_v4 } from "eth-sig-util";
-
+import "@rainbow-me/rainbowkit/styles.css";
 import { ethers } from "ethers";
-
-import { EIP712 } from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
-import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-
+import { useAccount, useConnect, useProvider, useSigner } from "wagmi";
+import { InjectedConnector } from "wagmi/connectors/injected";
+import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
 
 // these lines read the API key and scorer ID from your .env.local file
 const APIKEY = "716FoKqX.jZD7WuTQhn4pbiEv1cjMsbZEdQqVJemv";
@@ -46,8 +25,7 @@ const headers = APIKEY
   : undefined;
 
 export default function Passport() {
-
-  const { data: contractInfo, isLoading: isContractInfoLoading } = useDeployedContractInfo('YourContract');
+  const { data: contractInfo } = useDeployedContractInfo("YourContract");
 
   const { connect } = useConnect({
     connector: new InjectedConnector(),
@@ -89,7 +67,7 @@ export default function Passport() {
         console.log("not connected...");
       }
     }
-  }, []);
+  });
 
   /* todo connect user's wallet */
 
@@ -209,7 +187,7 @@ export default function Passport() {
     }
   }
 
-  const copyToClipboard = (text) => {
+  const copyToClipboard = text => {
     navigator.clipboard.writeText(text);
     setToastVisible(true);
     setTimeout(() => {
@@ -296,7 +274,12 @@ export default function Passport() {
           <div>
             <h1>Your passport score is {score} 🎉</h1>
             <div style={styles.hiddenMessageContainer}>
-              {Number(score) >= THRESHOLD_NUMBER && <h2>Congratulations, your score is high enough, sign a message and copy the signature to get a bonus when adding funds!!</h2>}
+              {Number(score) >= THRESHOLD_NUMBER && (
+                <h2>
+                  Congratulations, your score is high enough, sign a message and copy the signature to get a bonus when
+                  adding funds!!
+                </h2>
+              )}
               {Number(score) < THRESHOLD_NUMBER && (
                 <h2>Sorry, your score is not high enough to view the secret message.</h2>
               )}
@@ -312,54 +295,50 @@ export default function Passport() {
               Check passport score
             </button>
 
-            <button style={styles.buttonStyle} onClick={() => GetSignedScore()}>Get signed score</button>
+            <button style={styles.buttonStyle} onClick={() => GetSignedScore()}>
+              Get signed score
+            </button>
           </div>
         )}
         {noScoreMessage && <p style={styles.noScoreMessage}>{noScoreMessage}</p>}
-        {
-  _signature && (
-    <div style={styles.signatureContainer}>
-      <p style={styles.noScoreMessage}>
-        Your signature is: <br />
-        <p style={truncate}>
-        {_signature}
-        </p>
-        <button
-        onClick={() => copyToClipboard(_signature)}
-        style={{ border: "none", background: "none", cursor: "pointer" }}
-      >
-        <CopyIcon className="ml-1 cursor-pointer h-4 w-4" />
-      </button>
-      {
-        toastVisible && (
-          <div
-            style={{
-              position: "fixed",
-              top: "1rem",
-              left: "50%",
-              transform: "translateX(-50%)",
-              zIndex: 1000,
-              backgroundColor: "#0a0a2a",
-              color: "white",
-              fontSize: "1rem",
-              padding: "0.5rem 1rem",
-              borderRadius: "4px",
-              tranparent: "0.5s",
-            }}
-          >
-            Copied to clipboard!
+        {_signature && (
+          <div style={styles.signatureContainer}>
+            <p style={styles.noScoreMessage}>
+              Your signature is: <br />
+              <p style={truncate}>{_signature}</p>
+              <button
+                onClick={() => copyToClipboard(_signature)}
+                style={{ border: "none", background: "none", cursor: "pointer" }}
+              >
+                <CopyIcon className="ml-1 cursor-pointer h-4 w-4" />
+              </button>
+              {toastVisible && (
+                <div
+                  style={{
+                    position: "fixed",
+                    top: "1rem",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    zIndex: 1000,
+                    backgroundColor: "#0a0a2a",
+                    color: "white",
+                    fontSize: "1rem",
+                    padding: "0.5rem 1rem",
+                    borderRadius: "4px",
+                    tranparent: "0.5s",
+                  }}
+                >
+                  Copied to clipboard!
+                </div>
+              )}
+              <br />
+              Message Contents: <br />
+              Score: {score} <br />
+              Your address: {address} <br />
+              Contract address: {contractInfo?.address}
+            </p>
           </div>
-        )
-      }
-        <br />
-        Message Contents: <br />
-        Score: {score} <br />
-        Your address: {address} <br />
-        Contract address: {contractInfo?.address}
-      </p>
-    </div>
-  )
-}
+        )}
       </div>
     </div>
   );
