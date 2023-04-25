@@ -1,30 +1,27 @@
 import React, { useEffect, useState } from "react";
-import { useContractRead } from "wagmi";
-import { useYourContractGetVotingTime, yourContractABI } from "~~/generated/contractHooks";
+import { formatDistanceToNow } from "date-fns";
+import { useYourContractGetVotingTime } from "~~/generated/contractHooks";
 import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
-import { formatDistanceToNow } from 'date-fns';
 
-interface Props {
-  contract: any;
-}
-
-const VotingTime: React.FC<Props> = ({}) => {
-  const [votingTime, setVotingTime] = useState<number | null>(null);
+const VotingTime: React.FC = ({}) => {
   const [currentTimestamp, setCurrentTimestamp] = useState(Math.floor(Date.now() / 1000));
 
-const { data: contractInfo, isLoading: isContractInfoLoading } = useDeployedContractInfo('YourContract');
-const { data: votingTV, isLoading: isVotingTimeLoading } = useYourContractGetVotingTime({
-        address: contractInfo?.address,
-    });
+  const { data: contractInfo, isLoading: isContractInfoLoading } = useDeployedContractInfo("YourContract");
+  const { data: votingTV, isLoading: isVotingTimeLoading } = useYourContractGetVotingTime({
+    address: contractInfo?.address,
+  });
 
-const remainingTimeInSeconds = votingTV?.sub(currentTimestamp).toNumber() || 0;
-const remainingTime = remainingTimeInSeconds > 0 ? formatDistanceToNow(Date.now() + remainingTimeInSeconds * 1000) : 'Voting period has ended';
+  const remainingTimeInSeconds = votingTV?.sub(currentTimestamp).toNumber() || 0;
+  const remainingTime =
+    remainingTimeInSeconds > 0
+      ? formatDistanceToNow(Date.now() + remainingTimeInSeconds * 1000)
+      : "Voting period has ended";
 
-useEffect(() => {
+  useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTimestamp(Math.floor(Date.now() / 1000));
     }, 60000);
-  
+
     return () => {
       clearInterval(interval);
     };
@@ -37,8 +34,8 @@ useEffect(() => {
         <p className="text-gray-400">Loading voting time...</p>
       ) : (
         <p className="text-white-700">
-        <span className="font-semibold">{remainingTime}</span>
-      </p>
+          <span className="font-semibold">{remainingTime}</span>
+        </p>
       )}
     </div>
   );
