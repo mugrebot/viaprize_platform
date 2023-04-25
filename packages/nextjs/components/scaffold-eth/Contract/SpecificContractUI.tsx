@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Abi } from "abitype";
 import { useContract, useProvider } from "wagmi";
 import { Spinner } from "~~/components/Spinner";
@@ -23,6 +23,7 @@ type ContractUIProps = {
 export const SpecificContractUI = ({ contractName, functionName, className = "" }: ContractUIProps) => {
   const provider = useProvider();
   const [refreshDisplayVariables, setRefreshDisplayVariables] = useState(false);
+  const [methods, setMethods] = useState([]);
   const configuredNetwork = getTargetNetwork();
 
   const { data: deployedContractData, isLoading: deployedContractLoading } = useDeployedContractInfo(contractName);
@@ -47,7 +48,26 @@ export const SpecificContractUI = ({ contractName, functionName, className = "" 
   }, [contract, displayedContractFunctions, functionName]);
 
 
-  console.log(functionDisplay.writeFunction.methods[0]?.props.functionFragment.name);
+  //display the function name and the input fields, if a function name is passed in as a prop and matches the function name in the contract then display the input fields for that function
+  //it comes from the writeFunction.methods[i].props.functionFragment.name 
+  //display the function name and the input fields
+    const beans_2 = useMemo(() => {
+
+        const functionLookup = (functionName: string) => {
+            for (let i = 0; i < functionDisplay.writeFunction.methods.length; i++) {
+                if (functionDisplay?.writeFunction?.methods[i].props.functionFragment.name === functionName) {
+                    setMethods(functionDisplay.writeFunction.methods[i])
+                    return functionDisplay.writeFunction.methods[i]?.props.functionFragment.name;
+                }}}
+
+            functionLookup(functionName);
+        }, [functionName, functionDisplay.writeFunction.methods]);
+
+
+
+
+
+
 
 
   if (deployedContractLoading) {
@@ -67,9 +87,7 @@ export const SpecificContractUI = ({ contractName, functionName, className = "" 
   }
 
   return (
-    <div className={`grid grid-cols-1 lg:grid-cols-6 px-6 lg:px-10 lg:gap-12 w-full max-w-7xl my-0 ${className}`}>
-      <div className="col-span-5 grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10">
-        {/* ... (rest of the code) */}
+    <div className={`flex flex-col ${className}`}>
 
         <div className="col-span-1 lg:col-span-2 flex flex-col gap-6">
           <div className="z-10">
@@ -82,7 +100,7 @@ export const SpecificContractUI = ({ contractName, functionName, className = "" 
               <div className="p-5 divide-y divide-base-300">
                 {functionDisplay.readFunction || functionDisplay.writeFunction ? (
                   <>
-                    {functionDisplay.writeFunction && functionDisplay.writeFunction.methods[9]}
+                    {functionDisplay.writeFunction && methods}
                   </>
                 ) : (
                   "No matching function"
@@ -91,7 +109,8 @@ export const SpecificContractUI = ({ contractName, functionName, className = "" 
             </div>
           </div>
         </div>
-      </div>
+
+
     </div>
   );
 };

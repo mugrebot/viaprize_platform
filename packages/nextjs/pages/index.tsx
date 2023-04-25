@@ -74,9 +74,9 @@ const Home: NextPage = () => {
               </button>
             </div>
             {selectedOption === "submission" ? (
-              <SubmissionForm address={"0xcd258fCe467DDAbA643f813141c3560FF6c12518"} />
+              <SubmissionForm />
             ) : selectedOption === "funds" ? (
-              <AddFunds address={"0xcd258fCe467DDAbA643f813141c3560FF6c12518"} />
+              <AddFunds />
             ) : (
               <Vote contractName={"YourContract"} />
             )}

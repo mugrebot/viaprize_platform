@@ -16,6 +16,8 @@ import { useEthPrice } from "~~/hooks/scaffold-eth";
 import { useAppStore } from "~~/services/store/store";
 import { wagmiClient } from "~~/services/web3/wagmiClient";
 import { appChains } from "~~/services/web3/wagmiConnectors";
+import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
+import { CopyIcon } from "../components/example-ui/assets/CopyIcon";
 
 import { signTypedData_v4 } from "eth-sig-util";
 
@@ -34,7 +36,7 @@ const SUBMIT_PASSPORT_URI = "https://api.scorer.gitcoin.co/registry/submit-passp
 // endpoint for getting the signing message
 const SIGNING_MESSAGE_URI = "https://api.scorer.gitcoin.co/registry/signing-message";
 // score needed to see hidden message
-const THRESHOLD_NUMBER = 0;
+const THRESHOLD_NUMBER = 20;
 
 const headers = APIKEY
   ? {
@@ -44,6 +46,9 @@ const headers = APIKEY
   : undefined;
 
 export default function Passport() {
+
+  const { data: contractInfo, isLoading: isContractInfoLoading } = useDeployedContractInfo('YourContract');
+
   const { connect } = useConnect({
     connector: new InjectedConnector(),
   });
@@ -59,6 +64,8 @@ export default function Passport() {
   // here we deal with any local state we need to manage
   const [score, setScore] = useState<string>("");
   const [noScoreMessage, setNoScoreMessage] = useState<string>("");
+  const [_signature, setSignature] = useState<string>("");
+  const [toastVisible, setToastVisible] = useState(false);
 
   /* todo check user's connection when the app loads */
   async function _connect() {
@@ -146,7 +153,7 @@ export default function Passport() {
       name: "Viaprize",
       version: "1",
       chainId: 11155111,
-      verifyingContract: "0x682886bB67ff19db20B70B1F859E40aae3ce36A7",
+      verifyingContract: contractInfo?.address,
     };
 
     const types = {
@@ -160,7 +167,7 @@ export default function Passport() {
     const message = {
       score: score,
       account: address,
-      _contract: "0x682886bB67ff19db20B70B1F859E40aae3ce36A7",
+      _contract: contractInfo?.address,
     };
 
     const messageHash = ethers.utils._TypedDataEncoder.hash(domain, types, message);
@@ -170,6 +177,7 @@ export default function Passport() {
 
     console.log(domain, types, message);
     console.log(signature);
+    setSignature(signature);
   }
 
   async function submitPassport() {
@@ -201,6 +209,20 @@ export default function Passport() {
     }
   }
 
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    setToastVisible(true);
+    setTimeout(() => {
+      setToastVisible(false);
+    }, 2000);
+  };
+
+  const truncate = {
+    maxWidth: "100%",
+    overflow: "hidden",
+    wordWrap: "break-word",
+  };
+
   const styles = {
     main: {
       width: "900px",
@@ -222,6 +244,7 @@ export default function Passport() {
     },
     buttonContainer: {
       marginTop: 20,
+      padding: 20,
     },
     buttonStyle: {
       padding: "10px 30px",
@@ -235,8 +258,17 @@ export default function Passport() {
     hiddenMessageContainer: {
       marginTop: 15,
     },
+    signatureContainer: {
+      display: "inline-flex",
+      flexDirection: "column",
+      alignItems: "flex-start",
+      background: "transparent",
+      padding: "8px",
+      border: "1px solid #ccc",
+      borderRadius: "4px",
+    },
     noScoreMessage: {
-      marginTop: 20,
+      margin: 0,
     },
   };
 
@@ -254,8 +286,6 @@ export default function Passport() {
         Once you've added more stamps to your passport, submit your passport again to recalculate your score.
       </p>
 
-      <button onClick={() => GetSignedScore()}>Get signed score</button>
-
       <div style={styles.buttonContainer}>
         {!isConnected && (
           <button style={styles.buttonStyle} onClick={_connect}>
@@ -266,7 +296,7 @@ export default function Passport() {
           <div>
             <h1>Your passport score is {score} 🎉</h1>
             <div style={styles.hiddenMessageContainer}>
-              {Number(score) >= THRESHOLD_NUMBER && <h2>Congratulations, you can view this secret message!</h2>}
+              {Number(score) >= THRESHOLD_NUMBER && <h2>Congratulations, your score is high enough, sign a message and copy the signature to get a bonus when adding funds!!</h2>}
               {Number(score) < THRESHOLD_NUMBER && (
                 <h2>Sorry, your score is not high enough to view the secret message.</h2>
               )}
@@ -281,9 +311,55 @@ export default function Passport() {
             <button style={styles.buttonStyle} onClick={() => checkPassport()}>
               Check passport score
             </button>
+
+            <button style={styles.buttonStyle} onClick={() => GetSignedScore()}>Get signed score</button>
           </div>
         )}
         {noScoreMessage && <p style={styles.noScoreMessage}>{noScoreMessage}</p>}
+        {
+  _signature && (
+    <div style={styles.signatureContainer}>
+      <p style={styles.noScoreMessage}>
+        Your signature is: <br />
+        <p style={truncate}>
+        {_signature}
+        </p>
+        <button
+        onClick={() => copyToClipboard(_signature)}
+        style={{ border: "none", background: "none", cursor: "pointer" }}
+      >
+        <CopyIcon className="ml-1 cursor-pointer h-4 w-4" />
+      </button>
+      {
+        toastVisible && (
+          <div
+            style={{
+              position: "fixed",
+              top: "1rem",
+              left: "50%",
+              transform: "translateX(-50%)",
+              zIndex: 1000,
+              backgroundColor: "#0a0a2a",
+              color: "white",
+              fontSize: "1rem",
+              padding: "0.5rem 1rem",
+              borderRadius: "4px",
+              tranparent: "0.5s",
+            }}
+          >
+            Copied to clipboard!
+          </div>
+        )
+      }
+        <br />
+        Message Contents: <br />
+        Score: {score} <br />
+        Your address: {address} <br />
+        Contract address: {contractInfo?.address}
+      </p>
+    </div>
+  )
+}
       </div>
     </div>
   );

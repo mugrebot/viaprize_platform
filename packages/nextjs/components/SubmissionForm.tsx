@@ -3,16 +3,19 @@ import { useContractWrite } from "wagmi";
 import { useYourContractAddSubmission, yourContractABI } from "~~/generated/contractHooks";
 import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
 import { IntegerInput } from "./scaffold-eth";
+import { useAccount } from "wagmi";
 
 interface Props {
   address: string;
 }
 
-const SubmissionForm: React.FC<Props> = ({ address }) => {
+const SubmissionForm: React.FC<Props> = ({}) => {
   const [submissionText, setSubmissionText] = useState("");
   //use state for threshhold will be a number type and will be converted to wei
   const [threshold, setThreshold] = useState("");
   const [_response, setResponse] = useState();
+
+  const { address, isConnecting, isDisconnected } = useAccount();
 
   const { data: contractInfo, isLoading: isContractInfoLoading } = useDeployedContractInfo('YourContract');
   const { data, isLoading, isSuccess, write} = useYourContractAddSubmission({
