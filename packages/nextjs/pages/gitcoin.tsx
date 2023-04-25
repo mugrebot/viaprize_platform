@@ -261,7 +261,7 @@ export default function Passport() {
         </a>
       </p>
       <p style={styles.configurePassport}>
-        Once you've added more stamps to your passport, submit your passport again to recalculate your score.
+        Once you have added more stamps to your passport, submit your passport again to recalculate your score.
       </p>
 
       <div style={styles.buttonContainer}>
